@@ -64,7 +64,7 @@ public class TTS extends CordovaPlugin implements OnInitListener {
             public void onStart(String utteranceId) {
                 try {
                     JSONObject eventData = new JSONObject();
-                    eventData.put("type", "Word Boundary");
+                    eventData.put("type", "Start");
                     sendCustomEvent(utteranceId, eventData, webView);
                 } catch (JSONException e) {
                     // Handle the exception or print the stack trace
