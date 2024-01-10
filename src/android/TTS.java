@@ -67,12 +67,6 @@ public class TTS extends CordovaPlugin implements OnInitListener {
             }
 
             @Override
-            public void onDone(String s) {
-                JSONObject eventData = new JSONObject();
-                sendCustomEvent("speechDone", eventData, webView, cordova);
-            }
-
-            @Override
             public void onDone(String callbackId) {
                 if (!callbackId.equals("")) {
                     CallbackContext context = new CallbackContext(callbackId, webView);
