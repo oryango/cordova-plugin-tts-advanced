@@ -76,7 +76,14 @@ public class TTS extends CordovaPlugin implements OnInitListener {
             public void onDone(String callbackId) {
                 if (!callbackId.equals("")) {
                     CallbackContext context = new CallbackContext(callbackId, webView);
-                    context.success();
+                    try {
+                        JSONObject eventData = new JSONObject();
+                        eventData.put("type", "End");
+                        context.success(eventData);
+                    } catch (JSONException e) {
+                        // Handle the exception or print the stack trace
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -323,9 +330,7 @@ public class TTS extends CordovaPlugin implements OnInitListener {
         callbackContext.sendPluginResult(result);
     }
     private void sendCustomEvent(String callbackId, JSONObject eventData, CordovaWebView webView) {
-        String jsonString = eventData.toString();
-
-        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, jsonString);
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, eventData);
         pluginResult.setKeepCallback(true);
     
         webView.sendPluginResult(pluginResult, callbackId);
