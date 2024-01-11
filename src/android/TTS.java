@@ -61,16 +61,29 @@ public class TTS extends CordovaPlugin implements OnInitListener {
         tts = new TextToSpeech(cordova.getActivity().getApplicationContext(), this);
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
-            public void onStart(String s) {
-                JSONObject eventData = new JSONObject();
-                sendCustomEvent("speechStart", eventData, webView, cordova);
+            public void onStart(String utteranceId) {
+                try {
+                    JSONObject eventData = new JSONObject();
+                    eventData.put("type", "Start");
+                    sendCustomEvent(utteranceId, eventData, webView);
+                } catch (JSONException e) {
+                    // Handle the exception or print the stack trace
+                    e.printStackTrace();
+                }
             }
 
             @Override
             public void onDone(String callbackId) {
                 if (!callbackId.equals("")) {
                     CallbackContext context = new CallbackContext(callbackId, webView);
-                    context.success();
+                    try {
+                        JSONObject eventData = new JSONObject();
+                        eventData.put("type", "End");
+                        context.success(eventData);
+                    } catch (JSONException e) {
+                        // Handle the exception or print the stack trace
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -86,9 +99,10 @@ public class TTS extends CordovaPlugin implements OnInitListener {
             public void onRangeStart (String utteranceId, int start, int end, int frame) {
                 try {
                     JSONObject eventData = new JSONObject();
+                    eventData.put("type", "Word Boundary");
                     eventData.put("charIndex", start);
                     eventData.put("charLen", end-start);
-                    sendCustomEvent("speechBoundary", eventData, webView, cordova);
+                    sendCustomEvent(utteranceId, eventData, webView);
                 } catch (JSONException e) {
                     // Handle the exception or print the stack trace
                     e.printStackTrace();
@@ -315,11 +329,10 @@ public class TTS extends CordovaPlugin implements OnInitListener {
         final PluginResult result = new PluginResult(PluginResult.Status.OK, languages);
         callbackContext.sendPluginResult(result);
     }
-    private void sendCustomEvent(String eventName, JSONObject eventData, CordovaWebView webView, CordovaInterface cordova) {
-        cordova.getActivity().runOnUiThread(() -> {
-            String jsonString = eventData.toString();
-            String jsCode = "javascript:cordova.fireDocumentEvent('" + eventName + "', " + jsonString + ")";
-            webView.loadUrl(jsCode);
-        });
+    private void sendCustomEvent(String callbackId, JSONObject eventData, CordovaWebView webView) {
+        PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, eventData);
+        pluginResult.setKeepCallback(true);
+    
+        webView.sendPluginResult(pluginResult, callbackId);
     }
 }

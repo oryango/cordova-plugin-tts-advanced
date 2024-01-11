@@ -11,17 +11,30 @@
 */
 
 exports.speak = function (text) {
-  return new Promise(function (resolve, reject) {
+    const start = new Date().valueOf()
     var options = {};
-
     if (typeof text == "string") {
       options.text = text;
     } else {
       options = text;
     }
-
-    cordova.exec(resolve, reject, "TTS", "speak", [options]);
-  });
+    
+    cordova.exec((result)=>{
+        const now = new Date().valueOf();
+        if(result.type === "Word Boundary") {
+            console.log({
+                ...result,
+                elapsedTime: now - start,
+                currentWord: text.substr(result.charIndex, result.charLen),
+            });
+        } else {
+            console.log({
+                ...result,
+                elapsedTime: now - start,
+            });
+        }
+        
+    }, null, "TTS", "speak", [options]);
 };
 
 exports.stop = function () {
