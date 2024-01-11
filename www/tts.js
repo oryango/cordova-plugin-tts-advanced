@@ -11,31 +11,22 @@
 */
 
 exports.speak = function (text) {
-  return new Promise(function (resolve, reject) {
+    const now = new Date().valueOf()
     var options = {};
-
     if (typeof text == "string") {
       options.text = text;
     } else {
       options = text;
     }
-
-    cordova.exec(resolve, reject, "TTS", "speak", [options]);
-  });
-};
-
-exports.speakLog = function (text, success, error) {
-  return new Promise(function (resolve, reject) {
-    var options = {};
-
-    if (typeof text == "string") {
-      options.text = text;
-    } else {
-      options = text;
-    }
-
-    cordova.exec(success, error, "TTS", "speak", [options]);
-  });
+    
+    cordova.exec((result)=>{
+        const now = new Date().valueOf();
+        console.log({
+            ...result,
+            elapsedTime: now - start,
+            currentWord: text.substr(result.charIndex, result.charLen),
+        });
+    }, null, "TTS", "speak", [options]);
 };
 
 exports.stop = function () {
