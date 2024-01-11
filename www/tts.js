@@ -11,7 +11,7 @@
 */
 
 exports.speak = function (text) {
-    const now = new Date().valueOf()
+    const start = new Date().valueOf()
     var options = {};
     if (typeof text == "string") {
       options.text = text;
